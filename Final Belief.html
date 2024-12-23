@@ -1,0 +1,220 @@
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body, html {
+    height: 100%;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    background-color: black; /* Dark background */
+    cursor: none; /* Hide default cursor */
+  }
+
+  .container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column; /* Stack title and subtitle */
+  }
+
+  .title {
+    font-size: 100px; /* Large title text */
+    font-family: 'Times New Roman', serif; /* Change font to Times New Roman */
+    color: white;
+    text-align: center;
+    opacity: 1; /* Initially visible */
+    animation: pulse 1s infinite alternate; /* Pulsing animation */
+    text-shadow: 0 0 20px blue, 0 0 30px yellow; /* Pulsing glow effect */
+    z-index: 3;
+  }
+
+  .subtitle {
+    font-size: 24px; /* Subtitle text */
+    font-family: 'Times New Roman', serif;
+    color: white;
+    text-align: center;
+    opacity: 1; /* Initially visible */
+    z-index: 3;
+  }
+
+  .text {
+    position: absolute; /* Absolute position for movement */
+    z-index: 1;
+    font-size: 12px; /* Increased size by 20% */
+    font-family: 'Times New Roman', serif; /* Change font to Times New Roman */
+    font-style: italic; /* Italic style */
+    color: white;
+    opacity: 0; /* Initially hidden */
+    transition: opacity 0.3s ease-out; /* Smooth transition for visibility */
+    animation: moveText 15s linear infinite; /* Slightly faster movement */
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* Default shadow */
+  }
+
+  @keyframes pulse {
+    0% {
+      text-shadow: 0 0 20px blue, 0 0 30px yellow; /* Starting glow */
+    }
+    100% {
+      text-shadow: 0 0 30px blue, 0 0 50px yellow; /* End glow */
+    }
+  }
+
+  @keyframes moveText {
+    0% {
+      transform: translateY(0); /* Start at original position */
+    }
+    100% {
+      transform: translateY(50px); /* Move down 50 pixels */
+    }
+  }
+
+  .spotlight {
+    position: absolute;
+    border-radius: 30%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 10%, rgba(255, 255, 255, 0) 70%);
+    pointer-events: none;
+    z-index: 2;
+    opacity: 1;
+    animation: fadeOutAndShrink 5s forwards ease-out;
+  }
+
+  @keyframes fadeOutAndShrink {
+    0% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(0);
+    }
+</style>
+
+<div class="container" id="mainContainer">
+  <div class="title">What do you believe in?</div>
+  <div class="subtitle">Click to explore anonymous thoughts from people</div>
+  <div id="texts"></div> <!-- Container for text elements -->
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const container = document.querySelector('.container');
+    const textsContainer = document.getElementById('texts');
+    const phrases = [
+      "the universe is an ultimately perfectly balanced and just place, if given enough time",
+      "everything happens for a reason",
+      "good karma",
+      "aliens?",
+      "karma!",
+      "love!",
+      "souls - I don't know why exactly, I can explain some other time...",
+      "astrology",
+      "the universe",
+      "manifestation",
+      "the arts",
+      "spirits",
+      "past lives",
+      "anti-jinx",
+      "things eventually find their place, no matter how long it takes",
+      "souls and garbage!",
+      "i definitely believe in love but i feel it so strongly i don’t know if feel is the right word",
+      "i feel love and souls the same way i imagine roots of a tree",
+      "and i don’t really mind not understanding or being able to explain",
+      "mother nature",
+      "i genuinely believe in fate. everything is destined. I feel grateful for my failure 2 years ago",
+      "crystal oracle"
+    ];
+
+    const colors = ['blue', 'pink', 'purple', 'yellow']; // Available glow colors
+
+    // Create text elements and set their initial positions
+    phrases.forEach((phrase, index) => {
+      const textElement = document.createElement('div');
+      textElement.classList.add('text');
+      textElement.textContent = phrase;
+      textElement.style.left = `${Math.random() * 100}vw`; // Random x position
+      textElement.style.top = `${Math.random() * 100}vh`; // Random y position
+      // Set different animation delays to create a staggered effect
+      textElement.style.animationDelay = `${index * 2}s`; // Delay for each text element
+      
+      // Assign a random glow color
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      textElement.style.textShadow = `0 0 10px ${randomColor}, 0 0 20px ${randomColor}, 0 0 30px ${randomColor}`;
+
+      textsContainer.appendChild(textElement);
+    });
+
+    function isSpotlightOverElement(spotlight, element) {
+      const spotlightRect = spotlight.getBoundingClientRect();
+      const elementRect = element.getBoundingClientRect();
+
+      return (
+        spotlightRect.right > elementRect.left &&
+        spotlightRect.left < elementRect.right &&
+        spotlightRect.bottom > elementRect.top &&
+        spotlightRect.top < elementRect.bottom
+      );
+    }
+
+    // Hide title on first click
+    document.addEventListener('click', function() {
+      const title = document.querySelector('.title');
+      const subtitle = document.querySelector('.subtitle');
+      title.style.opacity = 0; // Hide title
+      subtitle.style.opacity = 0; // Hide subtitle
+
+      // Start showing the text elements
+      setTimeout(() => {
+        const textElements = document.querySelectorAll('.text');
+        textElements.forEach(text => {
+          text.style.opacity = 1; // Reveal all text
+        });
+      }, 500); // Slight delay for better effect
+    });
+
+    document.addEventListener('mousemove', function(e) {
+      // Create a new spotlight element at the cursor position
+      const spotlight = document.createElement('div');
+      spotlight.classList.add('spotlight');
+
+      // Adjusted spotlight size (50% smaller)
+      const size = 60; // 120px - 50%
+      spotlight.style.width = `${size}px`;
+      spotlight.style.height = `${size}px`;
+
+      // Center the light on the cursor
+      spotlight.style.left = `${e.pageX - size / 2}px`;
+      spotlight.style.top = `${e.pageY - size / 2}px`;
+
+      // Add the spotlight to the container
+      container.appendChild(spotlight);
+
+      // Check each text element for visibility
+      const textElements = document.querySelectorAll('.text');
+      textElements.forEach(text => {
+        if (isSpotlightOverElement(spotlight, text)) {
+          text.style.opacity = 1; // Reveal the text under the spotlight
+        } else {
+          text.style.opacity = 0; // Hide the text when the spotlight moves away
+        }
+      });
+
+      // Remove the spotlight after it fades out and shrinks (5 seconds)
+      setTimeout(() => {
+        spotlight.remove();
+      }, 5000); // Matches the fade-out duration
+    });
+
+    document.addEventListener('mouseleave', function() {
+      const textElements = document.querySelectorAll('.text');
+      textElements.forEach(text => {
+        text.style.opacity = 0; // Hide all text when the mouse leaves the page
+      });
+    });
+  });
+</script>
